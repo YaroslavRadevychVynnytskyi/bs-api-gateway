@@ -1,5 +1,6 @@
 package com.application.bsapigateway.util;
 
+import com.application.bsapigateway.dto.api.generic.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -7,6 +8,7 @@ import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +16,9 @@ import org.springframework.stereotype.Component;
 public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
+
+    @Value("${jwt.expiration}")
+    private String expiration;
 
     private Key key;
 
@@ -28,13 +33,5 @@ public class JwtUtil {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-    }
-
-    public Date getExpirationDate(String token) {
-        return getClaims(token).getExpiration();
-    }
-
-    public boolean isExpired(String token) {
-        return getExpirationDate(token).before(new Date());
     }
 }

@@ -30,9 +30,9 @@ public class AuthenticationFilter implements GatewayFilter {
         ServerHttpRequest request = exchange.getRequest();
 
 
-        logger.debug("Request Path: { ", request.getPath() + " }");
-
+        System.out.println(request.getHeaders().get("Authorization"));
         System.out.println(request.getURI());
+        System.out.println(validator.isSecured.test(request));
 
         if (validator.isSecured.test(request)) {
             if (authMissing(request)) {
@@ -41,9 +41,11 @@ public class AuthenticationFilter implements GatewayFilter {
 
             final String token = request.getHeaders().getOrEmpty("Authorization").get(0);
 
-            if (jwtUtil.isExpired(token)) {
-                return onError(exchange, HttpStatus.UNAUTHORIZED);
-            }
+            ServerHttpRequest modifiedRequest = exchange.getRequest()
+                    .mutate()
+                    .header("Authorization", "Bearer " + token)
+                    .build();
+            return chain.filter(exchange.mutate().request(modifiedRequest).build());
         }
         return chain.filter(exchange);
     }
